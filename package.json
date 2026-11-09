@@ -1,0 +1,43 @@
+{
+  "name": "palette-forge",
+  "version": "1.0.0",
+  "description": "Extract a colour palette from reference frames, together with the rules that decided what to keep and what to drop.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Jinmin Li",
+  "bin": {
+    "palette-forge": "tools/forge.mjs"
+  },
+  "scripts": {
+    "test": "node tools/forge.mjs selftest",
+    "demo": "node tools/forge.mjs demo",
+    "check": "node tools/forge.mjs check data/catalog.json --palette master"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "tools/",
+    "data/",
+    "palette-forge.html",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY.md"
+  ],
+  "keywords": [
+    "color-palette",
+    "colour-palette",
+    "cielab",
+    "ciede2000",
+    "color-grading",
+    "ai-video",
+    "cinematography",
+    "k-means",
+    "zero-dependency"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jinminli092-netizen/palette-forge.git"
+  }
+}
