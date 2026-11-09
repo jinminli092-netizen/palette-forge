@@ -4,33 +4,59 @@
 ![Node](https://img.shields.io/badge/node-18%2B-informational)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
-Turn a set of reference frames into the handful of hex values that actually hold a video model to a colour.
+**从一组参考图里提取一块色板，用来约束 AI 视频生成的色调。**
 
-> 中文：给 AI 视频生成一个**可量化、可校验**的色彩约束。不是"电影感 / 暖调 / 高级灰"这种模型听不懂的词，
-> 而是一组色值、一套影调结构，外加每条色为什么留下、为什么被剔除。
+> Extract a colour palette from reference frames, and hold a video model to it —
+> together with the reason every colour was kept or dropped.
 
-零依赖的**影视色板提取 / 体检 / 对账 / 校验**工具。给一批图或一段视频，一键出这种横条色板：
+---
 
-```
-#F0ECDF 3.7% │ #B8C1CF 2.6% │ #BFB8A6 2.2% │ #EEA66F 4.9% │ #BF9643 5.0% │ #CC854B 7.3% │ ...
-```
+## 简介
+
+给一批参考图（或一段视频），提取出 6~12 个色值，连同每个色在画面里的占比、整场的影调结构，
+以及**每一个被剔除的候选色和剔除理由**。
+
+零依赖：不需要 `npm install`，不需要 Python / numpy / PIL / sharp，不需要联网，图片不上传任何地方。
+纯 Node.js 加一个浏览器。
+
+## 用途
+
+AI 视频模型不认识"电影感""暖调""高级灰"这些词，但它能对上具体的色值。这个工具把一句模糊的风格描述，
+变成一组可量化、可校验的数字——可灵、即梦、Runway、Vidu、Veo、Seedance 都适用。
+
+| 想做的事 | 怎么做 |
+|---|---|
+| 定一场戏的色彩规范 | 把这场戏的参考图拖进来，出一块板，直接贴进镜头提示词 |
+| 保持跨场色彩连续 | 用剧集主色板对账：这一场用了主板的哪几个色、有没有冒出板外新色 |
+| 检查生成的镜头有没有跑板 | 对成片跑一次校验，得到吻合分和离板像素比例 |
+| 判断手上这块板能不能用 | 体检：冗余色、明度断层、锚点缺失 |
+
+## 能做什么
+
+- **三种提取模式**：单图 / 多图池化 / 多图投票（投票只保留"多数镜头都在用"的骨架色，不被大远景的面积带偏）
+- **六条留舍判据**，每条都可解释、可复盘，被剔除的色会写明原因，不会悄悄消失
+- 颜色运算在 **CIELAB + CIEDE2000** 里做，判"两个色像不像"跟人眼一致，已用国际标准测试数据校验
+- **结构分数**：区分"实体色块"和"沿边缘的高频噪声"，前者是美术决定，后者是伪影
+- 输出：色板条 PNG / SVG / JSON、可直接粘贴的中英双语提示词、3D LUT、主色板对账报告、跑板校验分
+- 自带纯 JS 的 PNG 编解码；装了 ffmpeg 就能读 JPEG / WebP / 视频抽帧
+
+---
+
+## 长什么样
 
 ![色板工坊界面](docs/screenshots/ui-overview.png)
 
-*实际界面：拖入一组参考图，设好参数，生成色板。同一场戏、同一个光位的图，才能提成一块能用的板。*
+*拖入一组参考图，设好参数，生成色板。同一场戏、同一个光位的图，才能提成一块能用的板。*
 
 ![色板条与明细](docs/screenshots/ui-detail.png)
 
 *每条色都带覆盖率、明度 L\*、饱和度 C\*、色相角 h° 和结构分数；被剔除的色连同理由单独列一张表。*
 
-用途：给 AI 视频生成（可灵 / 即梦 / Runway / Vidu / Veo / Seedance）一个**可量化、可校验**的色彩约束，
-而不是靠"电影感、暖调、高级灰"这种模型听不懂的词。
+导出的色板条长这样：
 
-- 纯 Node.js，不需要 `npm install`，不需要 Python / numpy / PIL / sharp
-- 颜色运算全部在 **CIELAB + CIEDE2000** 里做（不是 sRGB 欧氏距离），判"两个色像不像"跟人眼一致
-- 自带纯 JS 的 PNG 编解码，没有 ffmpeg 也能读 PNG、出 PNG
-- 有 ffmpeg 就能读 JPEG / WebP / 视频抽帧
-- 所有图片都在本机处理，不上传任何地方
+```
+#F0ECDF 3.7% │ #B8C1CF 2.6% │ #BFB8A6 2.2% │ #EEA66F 4.9% │ #BF9643 5.0% │ #CC854B 7.3% │ ...
+```
 
 ---
 
